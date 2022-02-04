@@ -3,6 +3,7 @@ package com.gl.shirospringboot.controller;
 import com.gl.shirospringboot.config.CustomToken;
 import com.gl.shirospringboot.pojo.Account;
 import com.gl.shirospringboot.service.AccountService;
+import com.gl.shirospringboot.utils.ShiroUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.AuthenticationException;
@@ -24,7 +25,8 @@ public class AccountController {
 
     @GetMapping("/account/register")
     public String register(String username, String password) {
-        SimpleHash simpleHash = new SimpleHash("MD5", password, null, 1024);
+        String salt = ShiroUtil.createSalt();
+        SimpleHash simpleHash = new SimpleHash("MD5", password, ShiroUtil.createSalt(), 1024);
         boolean b = accountService.insertAccount(username, simpleHash.toString());
         return "注册成功";
     }
@@ -35,7 +37,7 @@ public class AccountController {
         CustomToken token = new CustomToken(username, password);
         try {
             subject.login(token);
-            return "index";
+            return "登录成功";
         } catch (AuthenticationException e) {
             throw new AuthenticationException();
         }
@@ -48,17 +50,17 @@ public class AccountController {
         log.info(token.getPrincipal().toString());
         try {
             subject.login(token);
-            return "index";
+            return "登录成功";
         } catch (Exception e) {
             return e.toString();
         }
     }
 
     @GetMapping("/logout")
-    public Account logout() {
+    public String logout() {
         Subject subject = SecurityUtils.getSubject();
         subject.logout();
-        return (Account) subject.getPrincipal();
+        return "注销成功";
     }
 
     @GetMapping("/main")

@@ -18,6 +18,7 @@ public class Account implements Serializable {
     private String password;
     private String perms;
     private String role;
+    private String salt;
     @TableField(exist = false)
     private String session;
 }
